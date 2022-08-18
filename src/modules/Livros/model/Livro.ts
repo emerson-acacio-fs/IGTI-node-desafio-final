@@ -17,7 +17,7 @@ class Livro extends Model<
   nome: string
   valor: number
   estoque: number
-  autor_Id: ForeignKey<number>
+  autor_id: ForeignKey<number>
 }
 
 function initLivro(): void {

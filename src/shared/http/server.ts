@@ -10,7 +10,11 @@ import { connection } from 'database/database'
 import { initCliente } from 'modules/clientes/model/Cliete'
 import { associateLivro, initLivro } from 'modules/Livros/model/Livro'
 import { initAutor } from 'modules/Autores/model/Autor'
-import { associateVenda, initVenda } from 'modules/Vendas/model/Venda'
+import {
+  associateVenda,
+  createData,
+  initVenda,
+} from 'modules/Vendas/model/Venda'
 
 initCliente()
 initLivro()
@@ -24,7 +28,7 @@ connection
   .authenticate()
   .then(() => {
     logger.info('The connection was made successfully!')
-    connection.sync({ force: true })
+    // connection.sync({ force: true })
     // createData()
   })
   .catch(error => logger.error(error.message))
