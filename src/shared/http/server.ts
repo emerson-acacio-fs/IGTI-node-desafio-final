@@ -7,28 +7,24 @@ import { errors } from 'celebrate'
 import { AppError } from 'shared/errors/AppError'
 import { routes } from './routes'
 import { connection } from 'database/database'
-import 'modules/proprietarios/model/Proprietario'
-import 'modules/animais/model/Animais'
-import {
-  associateAnimal,
-  createData,
-  initAnimal,
-} from 'modules/animais/model/Animais'
-import { initProprietario } from 'modules/proprietarios/model/Proprietario'
-import { associateServico, initServico } from 'modules/servicos/model/Servicos'
+import { initCliente } from 'modules/clientes/model/Cliete'
+import { associateLivro, initLivro } from 'modules/Livros/model/Livro'
+import { initAutor } from 'modules/Autores/model/Autor'
+import { associateVenda, initVenda } from 'modules/Vendas/model/Venda'
 
-initAnimal()
-initProprietario()
-initServico()
+initCliente()
+initLivro()
+initAutor()
+initVenda()
 
-associateAnimal()
-associateServico()
+associateLivro()
+associateVenda()
 
 connection
   .authenticate()
   .then(() => {
     logger.info('The connection was made successfully!')
-    // connection.sync({ force: true })
+    connection.sync({ force: true })
     // createData()
   })
   .catch(error => logger.error(error.message))

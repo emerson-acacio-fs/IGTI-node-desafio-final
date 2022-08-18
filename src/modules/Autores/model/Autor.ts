@@ -1,4 +1,5 @@
 import { connection } from 'database/database'
+
 import {
   Model,
   InferAttributes,
@@ -6,17 +7,18 @@ import {
   DataTypes,
 } from 'sequelize'
 
-class Proprietario extends Model<
-  InferAttributes<Proprietario>,
-  InferCreationAttributes<Proprietario>
+class Autor extends Model<
+  InferAttributes<Autor>,
+  InferCreationAttributes<Autor>
 > {
   id?: number
   nome: string
+  email: string
   telefone: string
 }
 
-function initProprietario(): void {
-  Proprietario.init(
+function initAutor(): void {
+  Autor.init(
     {
       id: {
         type: DataTypes.INTEGER,
@@ -25,14 +27,11 @@ function initProprietario(): void {
         allowNull: false,
       },
       nome: { type: DataTypes.STRING, allowNull: false },
+      email: { type: DataTypes.STRING, allowNull: false },
       telefone: { type: DataTypes.STRING, allowNull: false },
     },
-    {
-      sequelize: connection,
-      tableName: 'proprietarios',
-      modelName: 'proprietario',
-    },
+    { sequelize: connection, tableName: 'autores', modelName: 'autor' },
   )
 }
 
-export { Proprietario, initProprietario }
+export { Autor, initAutor }
