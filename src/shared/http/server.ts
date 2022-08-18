@@ -15,6 +15,7 @@ import {
   createData,
   initVenda,
 } from 'modules/Vendas/model/Venda'
+import { Console } from 'console'
 
 initCliente()
 initLivro()
@@ -49,6 +50,7 @@ app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
       .json({ status: 'error', message: error.message })
     return next()
   }
+
   logger.error(`code 500 - Internal server error`)
   res.status(500).json({ status: 'error', message: 'Internal server error' })
   next()

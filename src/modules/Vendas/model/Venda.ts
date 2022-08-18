@@ -44,11 +44,13 @@ function associateVenda(): void {
     onDelete: 'NO ACTION',
     onUpdate: 'NO ACTION',
   })
+
   Venda.belongsTo(Cliente, {
     foreignKey: { allowNull: false, name: 'cliente_id' },
     onDelete: 'NO ACTION',
     onUpdate: 'NO ACTION',
   })
+  Cliente.hasMany(Venda, { as: 'vendas', foreignKey: 'cliente_id' })
 }
 
 async function createData(): Promise<void> {

@@ -1,44 +1,79 @@
+import { Venda } from 'modules/Vendas/model/Venda'
+import { AppError } from 'shared/errors/AppError'
 import { Cliente } from '../model/Cliete'
 
-export type TCreateCliente = Pick<Cliente, 'proprietarioId' | 'nome' | 'tipo'>
+export type TCreateCliente = Pick<
+  Cliente,
+  'nome' | 'senha' | 'email' | 'endereco' | 'telefone'
+>
 export type TFullCliente = Cliente
-export interface IUpdateCliente {
-  id: number
-  nome?: string
-  tipo?: string
-  proprietarioId?: number
-}
+export type TClienteSemSenha = Pick<
+  Cliente,
+  'nome' | 'email' | 'endereco' | 'telefone' | 'id'
+>
+
+export type TUpdateCliente = Partial<Cliente>
+
+export type TClienteSemSenhaComVendas = TClienteSemSenha &
+  Pick<Cliente, 'vendas'>
 class ClienteRepository {
-  async show(proprietarioId?: number): Promise<Cliente[]> {
-    if (proprietarioId) {
-      return await Cliente.findAll({ where: { proprietarioId } })
-    }
-    return await Cliente.findAll()
+  async create(cliente: TCreateCliente): Promise<TClienteSemSenha> {
+    const novoCliente = await Cliente.create(cliente)
+
+    const { id, nome, email, telefone, endereco } = novoCliente
+    return { id, nome, email, telefone, endereco }
   }
-  async getById(id: number): Promise<Cliente | null> {
-    return await Cliente.findByPk(id)
-  }
-  async create(cliente: TCreateCliente): Promise<TFullCliente> {
-    return await Cliente.create(cliente)
-  }
-  async delete(id: number): Promise<boolean> {
-    const isDeleted = await Cliente.destroy({
-      where: { id },
+  async list(): Promise<TClienteSemSenhaComVendas[]> {
+    const listaDeClientes = await Cliente.findAll({
+      attributes: { exclude: ['senha'] },
+      include: { model: Venda, as: 'vendas' },
     })
-    return isDeleted ? true : false
+
+    return listaDeClientes
   }
-  async update(cliente: IUpdateCliente): Promise<TFullCliente> {
-    const [, newCliente] = await Cliente.update(
+  async findByIdWithVendas(
+    id: number,
+  ): Promise<TClienteSemSenhaComVendas | null> {
+    const cliente = await Cliente.findByPk(id, {
+      attributes: { exclude: ['senha'] },
+      include: { model: Venda, as: 'vendas' },
+    })
+
+    return cliente
+  }
+  async findById(id: number): Promise<TClienteSemSenha | null> {
+    const cliente = await Cliente.findByPk(id, {
+      attributes: { exclude: ['senha'] },
+    })
+    return cliente
+  }
+  async delete(id: number): Promise<number> {
+    const listaDeVendas = await Venda.findAll({
+      where: { cliente_id: id },
+    })
+
+    if (listaDeVendas.length) {
+      throw new AppError('Existem vendas atreladas a esse cliente.', 409)
+    }
+
+    const sataus = await Cliente.destroy({ where: { id } })
+
+    return sataus
+  }
+  async update(cliente: TUpdateCliente): Promise<TClienteSemSenha> {
+    const [, novoCliente] = await Cliente.update(
       {
         ...(cliente.nome ? { nome: cliente.nome } : {}),
-        ...(cliente.tipo ? { tipo: cliente.tipo } : {}),
-        ...(cliente.proprietarioId
-          ? { proprietarioId: cliente.proprietarioId }
-          : {}),
+        ...(cliente.email ? { email: cliente.email } : {}),
+        ...(cliente.senha ? { senha: cliente.senha } : {}),
+        ...(cliente.telefone ? { telefone: cliente.telefone } : {}),
+        ...(cliente.endereco ? { endereco: cliente.endereco } : {}),
       },
       { where: { id: cliente.id }, returning: true },
     )
-    return newCliente[0]
+
+    const { id, nome, email, telefone, endereco } = novoCliente[0]
+    return { id, nome, email, telefone, endereco }
   }
 }
 
